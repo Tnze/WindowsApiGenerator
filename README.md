@@ -36,6 +36,7 @@ and use COM objects. The generator is available as a Maven and a Gradle plugin.
 - Enumerate Windows, demonstrating use of a callback function (Kotlin, Gradle/Kotlin): [enum_windows](examples/enum_windows)
 - Display User Notification, showing use of COM interfaces (Java, Maven): [user_notification_java](examples/user_notification_java)
 - Display User Notification, showing use of COM interfaces (Kotlin, Maven): [user_notification_kotlin](examples/user_notification_kotlin)
+- Show Progress in Taskbar, demonstrating use of COM interfaces (Java, Maven): [taskbar](examples/taskbar)
 
 
 ## Prerequisites
