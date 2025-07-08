@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id "net.codecrete.windows-api" version "0.8.0"
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
+generateWindowsApi {
+    functions = [
+            "CoTaskMemFree",
+            "FormatMessageW",
+            "GetModuleHandleW",
+            "GetVolumePathNameW",
+            "LocalFree",
+            "SHGetKnownFolderPath",
+    ]
+    constants = [
+            "FOLDERID_CommonPrograms",
+            "FOLDERID_Desktop",
+            "FOLDERID_Programs",
+            "FOLDERID_PublicDesktop",
+    ]
+}

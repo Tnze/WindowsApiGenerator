@@ -56,3 +56,9 @@ jobs:
     - name: Build user notification example (Kotlin)
       run: mvn compile
       working-directory: ./examples/user_notification_kotlin
+    - name: Build taskbar example
+      run: mvn compile
+      working-directory: ./examples/taskbar
+    - name: Build medium story example
+      run: ./gradlew --init-script ../init.gradle.kts assemble
+      working-directory: ./examples/medium_story

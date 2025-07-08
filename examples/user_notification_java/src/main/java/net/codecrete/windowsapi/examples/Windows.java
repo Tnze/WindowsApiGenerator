@@ -121,7 +121,7 @@ public class Windows {
             var messagePointer = messagePointerHolder.get(ADDRESS_UNBOUNDED, 0);
             var message = messagePointer.getString(0, UTF_16LE);
             LocalFree(errorState, messagePointer);
-            return message.replaceAll("\\s", "");
+            return message.trim();
         }
     }
 
