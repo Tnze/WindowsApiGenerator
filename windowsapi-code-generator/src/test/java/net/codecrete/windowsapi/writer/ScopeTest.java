@@ -30,12 +30,12 @@ class ScopeTest {
     @Test
     void buildScope_resultIsCorrect() {
         var scope = new Scope(metadata, eventListener);
-        scope.addFunctions(Set.of("RegisterClassW", "GetProcessMemoryInfo"));
+        scope.addFunctions(Set.of("RegisterClassW", "GetProcessMemoryInfo", "CoInitializeEx"));
         scope.buildTransitiveScope();
 
         assertThat(scope.getTransitiveTypeScope())
                 .extracting(Type::name)
-                .containsExactlyInAnyOrder("WNDCLASSW", "WNDPROC", "PROCESS_MEMORY_COUNTERS", "WNDCLASS_STYLES", "WIN32_ERROR");
+                .containsExactlyInAnyOrder("WNDCLASSW", "WNDPROC", "PROCESS_MEMORY_COUNTERS", "WNDCLASS_STYLES", "WIN32_ERROR", "COINIT");
     }
 
     @Test

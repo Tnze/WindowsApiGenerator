@@ -7,6 +7,7 @@
 package net.codecrete.windowsapi.metadata;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -111,7 +112,8 @@ public class Method {
         returnType = typeReplacer.apply(returnType);
         var newParameters = new Parameter[parameters.length];
         for (int i = 0; i < newParameters.length; i++)
-            newParameters[i] = new Parameter(parameters[i].name(), typeReplacer.apply(parameters[i].type()));
+            newParameters[i] = new Parameter(parameters[i].name(), typeReplacer.apply(parameters[i].type()),
+                    parameters[i].associatedEnumType());
         parameters = newParameters;
     }
 
@@ -166,7 +168,10 @@ public class Method {
      * @return the referenced types (as a stream)
      */
     public Stream<Type> referencedTypes() {
-        return Stream.concat(Stream.of(returnType), Arrays.stream(parameters).map(Parameter::type));
+        return Stream.concat(
+                Stream.concat(Stream.of(returnType), Arrays.stream(parameters).map(Parameter::type)),
+                Arrays.stream(parameters).map(Parameter::associatedEnumType).filter(Objects::nonNull)
+        );
     }
 
     /**

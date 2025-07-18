@@ -24,6 +24,7 @@ import static net.codecrete.windowsapi.winmd.tables.CodedIndexes.HAS_CUSTOM_ATTR
 import static net.codecrete.windowsapi.winmd.tables.MetadataTables.FIELD;
 import static net.codecrete.windowsapi.winmd.tables.MetadataTables.MEMBER_REF;
 import static net.codecrete.windowsapi.winmd.tables.MetadataTables.METHOD_DEF;
+import static net.codecrete.windowsapi.winmd.tables.MetadataTables.PARAM;
 import static net.codecrete.windowsapi.winmd.tables.MetadataTables.TYPE_DEF;
 import static net.codecrete.windowsapi.winmd.tables.MetadataTables.TYPE_REF;
 
@@ -42,6 +43,7 @@ class CustomAttributeDecoder extends Decoder {
     private static final String METADATA = "Windows.Win32.Foundation.Metadata";
     private static final QualifiedName FLAGS_ATTRIBUTE = new QualifiedName(SYSTEM, "FlagsAttribute");
     private static final QualifiedName OBSOLETE_ATTRIBUTE = new QualifiedName(SYSTEM, "ObsoleteAttribute");
+    private static final QualifiedName ASSOCIATED_ENUM_ATTRIBUTE = new QualifiedName(METADATA, "AssociatedEnumAttribute");
     private static final QualifiedName CONSTANT_ATTRIBUTE = new QualifiedName(METADATA, "ConstantAttribute");
     private static final QualifiedName DOCUMENTATION_ATTRIBUTE = new QualifiedName(METADATA, "DocumentationAttribute");
     private static final QualifiedName FLEXIBLE_ARRAY_ATTRIBUTE = new QualifiedName(METADATA, "FlexibleArrayAttribute");
@@ -53,11 +55,11 @@ class CustomAttributeDecoder extends Decoder {
             "StructSizeFieldAttribute");
     private static final QualifiedName SUPPORTED_ARCHITECTURE_ATTRIBUTE = new QualifiedName(METADATA,
             "SupportedArchitectureAttribute");
-
     /**
      * Set of relevant custom attributes.
      */
     private static final Set<QualifiedName> relevantAttributes = Set.of(
+            ASSOCIATED_ENUM_ATTRIBUTE,
             CONSTANT_ATTRIBUTE,
             FLAGS_ATTRIBUTE,
             OBSOLETE_ATTRIBUTE,
@@ -82,17 +84,24 @@ class CustomAttributeDecoder extends Decoder {
             new QualifiedName(METADATA, "AlsoUsableForAttribute"),
             new QualifiedName(METADATA, "AnsiAttribute"),
             new QualifiedName(METADATA, "AssociatedConstantAttribute"),
-            new QualifiedName(METADATA, "AssociatedEnumAttribute"),
             new QualifiedName(METADATA, "CanReturnErrorsAsSuccessAttribute"),
             new QualifiedName(METADATA, "CanReturnMultipleSuccessValuesAttribute"),
+            new QualifiedName(METADATA, "ComOutPtrAttribute"),
             new QualifiedName(METADATA, "ConstAttribute"),
+            new QualifiedName(METADATA, "DoNotReleaseAttribute"),
+            new QualifiedName(METADATA, "FreeWithAttribute"),
+            new QualifiedName(METADATA, "IgnoreIfReturnAttribute"),
             new QualifiedName(METADATA, "InvalidHandleValueAttribute"),
+            new QualifiedName(METADATA, "MemorySizeAttribute"),
             new QualifiedName(METADATA, "MetadataTypedefAttribute"),
             new QualifiedName(METADATA, "NativeArrayInfoAttribute"),
             new QualifiedName(METADATA, "NativeBitfieldAttribute"),
             new QualifiedName(METADATA, "NotNullTerminatedAttribute"),
             new QualifiedName(METADATA, "NullNullTerminatedAttribute"),
             new QualifiedName(METADATA, "RAIIFreeAttribute"),
+            new QualifiedName(METADATA, "ReservedAttribute"),
+            new QualifiedName(METADATA, "RetainedAttribute"),
+            new QualifiedName(METADATA, "RetValAttribute"),
             new QualifiedName(METADATA, "ScopedEnumAttribute"),
             new QualifiedName(METADATA, "SupportedOSPlatformAttribute"),
             new QualifiedName(METADATA, "UnicodeAttribute")
@@ -146,6 +155,17 @@ class CustomAttributeDecoder extends Decoder {
         return getAttributes(fieldIndex);
     }
 
+    /**
+     * Gets the custom attribute data for the given {@code Param} index.
+     *
+     * @param param the {@code Param} index
+     * @return the custom attribute data
+     */
+    CustomAttributeData getParamAttributes(int param) {
+        var fieldIndex = CodedIndex.encode(PARAM, param, HAS_CUSTOM_ATTRIBUTE_TABLES);
+        return getAttributes(fieldIndex);
+    }
+
     private CustomAttributeData getAttributes(int hasCustomAttributeIndex) {
         var data = new CustomAttributeData();
 
@@ -192,6 +212,9 @@ class CustomAttributeDecoder extends Decoder {
             } else if (qualifiedName.equals(STRUCT_SIZE_FIELD_ATTRIBUTE)) {
                 var value = getValue(customAttribute, memberRef);
                 data.structSizeField = (String) value.fixedArguments()[0].value();
+            } else if (qualifiedName.equals(ASSOCIATED_ENUM_ATTRIBUTE)) {
+                var value = getValue(customAttribute, memberRef);
+                data.associatedEnumType = (String) value.fixedArguments()[0].value();
             }
         }
 

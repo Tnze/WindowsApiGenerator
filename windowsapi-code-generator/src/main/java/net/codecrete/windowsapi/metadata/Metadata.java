@@ -90,6 +90,20 @@ public class Metadata {
     }
 
     /**
+     * Gets the enumeration type with the given name
+     *
+     * @param name the enumeration name
+     * @return the enumeration type
+     * @exception java.util.NoSuchElementException thrown if the enumeration type does not exist
+     */
+    public EnumType getEnumType(String name) {
+        return (EnumType) types()
+                .filter(EnumType.class::isInstance)
+                .filter(type -> type.name().equals(name))
+                .findFirst().orElseThrow();
+    }
+
+    /**
      * Gets the type with the specified name.
      * <p>
      * If different architecture variants exist for this type,

@@ -55,7 +55,11 @@ class CustomAttributeData {
      */
     boolean isFlexibleArray = false;
     /**
-     * Name of field use to set the struct size.
+     * Name of field used to set the struct size.
      */
     String structSizeField = null;
+    /**
+     * Name of an enumeration type associated with this parameter.
+     */
+    String associatedEnumType = null;
 }

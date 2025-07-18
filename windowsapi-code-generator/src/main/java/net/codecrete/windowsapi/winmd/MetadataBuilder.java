@@ -462,7 +462,11 @@ public class MetadataBuilder implements TypeLookup {
             } else {
                 // positional parameter
                 assert paramName != null;
-                parameters[index] = new Parameter(paramName, methodSignature.paramTypes()[index]);
+                var attributes = customAttributeDecoder.getParamAttributes(param.index());
+                EnumType associatedEnumType = null;
+                if (attributes.associatedEnumType != null)
+                    associatedEnumType = metadata.getEnumType(attributes.associatedEnumType);
+                parameters[index] = new Parameter(paramName, methodSignature.paramTypes()[index], associatedEnumType);
                 index += 1;
             }
         }

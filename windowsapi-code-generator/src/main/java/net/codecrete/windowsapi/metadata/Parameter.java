@@ -11,6 +11,7 @@ package net.codecrete.windowsapi.metadata;
  *
  * @param name the parameter name
  * @param type the parameter type
+ * @param associatedEnumType enumeration type associated with this parameter
  */
-public record Parameter(String name, Type type) {
+public record Parameter(String name, Type type, EnumType associatedEnumType) {
 }
