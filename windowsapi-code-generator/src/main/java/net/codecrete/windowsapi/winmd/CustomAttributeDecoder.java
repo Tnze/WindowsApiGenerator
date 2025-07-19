@@ -17,6 +17,7 @@ import net.codecrete.windowsapi.winmd.tables.CodedIndex;
 import net.codecrete.windowsapi.winmd.tables.CustomAttribute;
 import net.codecrete.windowsapi.winmd.tables.MemberRef;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,69 +43,128 @@ class CustomAttributeDecoder extends Decoder {
     private static final String SYSTEM = "System";
     private static final String METADATA = "Windows.Win32.Foundation.Metadata";
     private static final QualifiedName FLAGS_ATTRIBUTE = new QualifiedName(SYSTEM, "FlagsAttribute");
-    private static final QualifiedName OBSOLETE_ATTRIBUTE = new QualifiedName(SYSTEM, "ObsoleteAttribute");
     private static final QualifiedName ASSOCIATED_ENUM_ATTRIBUTE = new QualifiedName(METADATA, "AssociatedEnumAttribute");
     private static final QualifiedName CONSTANT_ATTRIBUTE = new QualifiedName(METADATA, "ConstantAttribute");
     private static final QualifiedName DOCUMENTATION_ATTRIBUTE = new QualifiedName(METADATA, "DocumentationAttribute");
     private static final QualifiedName FLEXIBLE_ARRAY_ATTRIBUTE = new QualifiedName(METADATA, "FlexibleArrayAttribute");
     private static final QualifiedName GUID_ATTRIBUTE = new QualifiedName(METADATA, "GuidAttribute");
-    private static final QualifiedName NATIVE_ENCODING_ATTRIBUTE = new QualifiedName(METADATA,
-            "NativeEncodingAttribute");
+    private static final QualifiedName NATIVE_ENCODING_ATTRIBUTE = new QualifiedName(METADATA, "NativeEncodingAttribute");
     private static final QualifiedName NATIVE_TYPEDEF_ATTRIBUTE = new QualifiedName(METADATA, "NativeTypedefAttribute");
-    private static final QualifiedName STRUCT_SIZE_FIELD_ATTRIBUTE = new QualifiedName(METADATA,
-            "StructSizeFieldAttribute");
-    private static final QualifiedName SUPPORTED_ARCHITECTURE_ATTRIBUTE = new QualifiedName(METADATA,
-            "SupportedArchitectureAttribute");
+    private static final QualifiedName STRUCT_SIZE_FIELD_ATTRIBUTE = new QualifiedName(METADATA, "StructSizeFieldAttribute");
+    private static final QualifiedName SUPPORTED_ARCHITECTURE_ATTRIBUTE = new QualifiedName(METADATA, "SupportedArchitectureAttribute");
+
     /**
-     * Set of relevant custom attributes.
+     * Attribute extractors for types
      */
-    private static final Set<QualifiedName> relevantAttributes = Set.of(
-            ASSOCIATED_ENUM_ATTRIBUTE,
-            CONSTANT_ATTRIBUTE,
-            FLAGS_ATTRIBUTE,
-            OBSOLETE_ATTRIBUTE,
+    private static final Map<QualifiedName, Extractor<TypeCustomAttributeData>> typeAttributeExtractors = Map.of(
+            SUPPORTED_ARCHITECTURE_ATTRIBUTE,
+            (context, data) -> data.supportedArchitecture = ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
             DOCUMENTATION_ATTRIBUTE,
-            FLEXIBLE_ARRAY_ATTRIBUTE,
+            (context, data) -> data.documentationUrl = context.getLazyString(),
+            FLAGS_ATTRIBUTE,
+            (context, data) -> data.isEnumFlags = true,
             GUID_ATTRIBUTE,
-            NATIVE_ENCODING_ATTRIBUTE,
+            (context, data) -> data.guidConstant = createGuidConstant(context.getValue()),
             NATIVE_TYPEDEF_ATTRIBUTE,
+            (context, data) -> data.isTypedef = true,
             STRUCT_SIZE_FIELD_ATTRIBUTE,
-            SUPPORTED_ARCHITECTURE_ATTRIBUTE
+            (context, data) -> data.structSizeField = (String) context.getValue().fixedArguments()[0].value()
     );
 
     /**
-     * Set of ignored attributes.
+     * Set of ignored custom attributes for types.
      */
-    private static final Set<QualifiedName> ignoredAttributes = Set.of(
+    private static final Set<QualifiedName> ignoredTypesAttributes = Set.of(
             new QualifiedName(SYSTEM, "AttributeUsageAttribute"),
-            new QualifiedName("System.Diagnostics.CodeAnalysis", "DoesNotReturnAttribute"),
+            new QualifiedName(SYSTEM, "ObsoleteAttribute"),
             new QualifiedName("System.Runtime.InteropServices", "ComVisibleAttribute"),
             new QualifiedName("System.Runtime.InteropServices", "UnmanagedFunctionPointerAttribute"),
             new QualifiedName(METADATA, "AgileAttribute"),
             new QualifiedName(METADATA, "AlsoUsableForAttribute"),
             new QualifiedName(METADATA, "AnsiAttribute"),
             new QualifiedName(METADATA, "AssociatedConstantAttribute"),
+            new QualifiedName(METADATA, "InvalidHandleValueAttribute"),
+            new QualifiedName(METADATA, "MetadataTypedefAttribute"),
+            new QualifiedName(METADATA, "RAIIFreeAttribute"),
+            new QualifiedName(METADATA, "ScopedEnumAttribute"),
+            new QualifiedName(METADATA, "SupportedOSPlatformAttribute"),
+            new QualifiedName(METADATA, "UnicodeAttribute")
+    );
+
+    /**
+     * Attributes extractors for methods
+     */
+    private static final Map<QualifiedName, Extractor<MethodCustomAttributeData>> methodAttributeExtractors = Map.of(
+            SUPPORTED_ARCHITECTURE_ATTRIBUTE,
+            (context, data) -> data.supportedArchitecture = ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
+            DOCUMENTATION_ATTRIBUTE,
+            (context, data) -> data.documentationUrl = context.getLazyString(),
+            CONSTANT_ATTRIBUTE,
+            (context, data) -> data.constantValue = context.getValue().fixedArguments()[0].value()
+    );
+
+    /**
+     * Set of ignored custom attributes for methods.
+     */
+    private static final Set<QualifiedName> ignoredMethodAttributes = Set.of(
+            new QualifiedName(SYSTEM, "ObsoleteAttribute"),
+            new QualifiedName(METADATA, "AnsiAttribute"),
             new QualifiedName(METADATA, "CanReturnErrorsAsSuccessAttribute"),
             new QualifiedName(METADATA, "CanReturnMultipleSuccessValuesAttribute"),
+            new QualifiedName(METADATA, "SupportedOSPlatformAttribute"),
+            new QualifiedName(METADATA, "UnicodeAttribute"),
+            new QualifiedName("System.Diagnostics.CodeAnalysis", "DoesNotReturnAttribute")
+    );
+
+    /**
+     * Attributes extractors for fields
+     */
+    private static final Map<QualifiedName, Extractor<FieldCustomAttributeData>> fieldAttributeExtractors = Map.of(
+            SUPPORTED_ARCHITECTURE_ATTRIBUTE,
+            (context, data) -> data.supportedArchitecture = ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
+            DOCUMENTATION_ATTRIBUTE,
+            (context, data) -> data.documentationUrl = context.getLazyString(),
+            GUID_ATTRIBUTE,
+            (context, data) -> data.guidConstant = createGuidConstant(context.getValue()),
+            NATIVE_ENCODING_ATTRIBUTE,
+            (context, data) -> data.isAnsiEncoding = true,
+            FLEXIBLE_ARRAY_ATTRIBUTE,
+            (context, data) -> data.isFlexibleArray = true,
+            CONSTANT_ATTRIBUTE,
+            (context, data) -> data.constantValue = context.getValue().fixedArguments()[0].value()
+    );
+
+    /**
+     * Set of ignored custom attributes for fields.
+     */
+    private static final Set<QualifiedName> ignoredFieldAttributes = Set.of();
+
+    /**
+     * Attributes extractors for parameters
+     */
+    private static final Map<QualifiedName, Extractor<ParamCustomAttributeData>> paramAttributeExtractors = Map.of(
+            ASSOCIATED_ENUM_ATTRIBUTE,
+            (context, data) -> data.associatedEnumType = (String) context.getValue().fixedArguments()[0].value()
+    );
+
+    /**
+     * Set of ignored custom attributes for parameters.
+     */
+    private static final Set<QualifiedName> ignoredParamAttributes = Set.of(
             new QualifiedName(METADATA, "ComOutPtrAttribute"),
             new QualifiedName(METADATA, "ConstAttribute"),
+            DOCUMENTATION_ATTRIBUTE,
             new QualifiedName(METADATA, "DoNotReleaseAttribute"),
             new QualifiedName(METADATA, "FreeWithAttribute"),
             new QualifiedName(METADATA, "IgnoreIfReturnAttribute"),
-            new QualifiedName(METADATA, "InvalidHandleValueAttribute"),
             new QualifiedName(METADATA, "MemorySizeAttribute"),
-            new QualifiedName(METADATA, "MetadataTypedefAttribute"),
             new QualifiedName(METADATA, "NativeArrayInfoAttribute"),
-            new QualifiedName(METADATA, "NativeBitfieldAttribute"),
             new QualifiedName(METADATA, "NotNullTerminatedAttribute"),
             new QualifiedName(METADATA, "NullNullTerminatedAttribute"),
             new QualifiedName(METADATA, "RAIIFreeAttribute"),
             new QualifiedName(METADATA, "ReservedAttribute"),
             new QualifiedName(METADATA, "RetainedAttribute"),
-            new QualifiedName(METADATA, "RetValAttribute"),
-            new QualifiedName(METADATA, "ScopedEnumAttribute"),
-            new QualifiedName(METADATA, "SupportedOSPlatformAttribute"),
-            new QualifiedName(METADATA, "UnicodeAttribute")
+            new QualifiedName(METADATA, "RetValAttribute")
     );
 
     private final MetadataFile metadataFile;
@@ -128,9 +188,11 @@ class CustomAttributeDecoder extends Decoder {
      * @param typeDef the {@code TypeDef} index
      * @return the custom attribute data
      */
-    CustomAttributeData getTypeDefAttributes(int typeDef) {
+    TypeCustomAttributeData getTypeDefAttributes(int typeDef) {
         var typeDefIndex = CodedIndex.encode(TYPE_DEF, typeDef, HAS_CUSTOM_ATTRIBUTE_TABLES);
-        return getAttributes(typeDefIndex);
+        var data = new TypeCustomAttributeData();
+        extractAttributes(typeDefIndex, typeAttributeExtractors, ignoredTypesAttributes, data);
+        return data;
     }
 
     /**
@@ -139,9 +201,11 @@ class CustomAttributeDecoder extends Decoder {
      * @param methodDef the {@code MethodDef} index
      * @return the custom attribute data
      */
-    CustomAttributeData getMethodDefAttributes(int methodDef) {
+    MethodCustomAttributeData getMethodDefAttributes(int methodDef) {
         var methodDefIndex = CodedIndex.encode(METHOD_DEF, methodDef, HAS_CUSTOM_ATTRIBUTE_TABLES);
-        return getAttributes(methodDefIndex);
+        var data = new MethodCustomAttributeData();
+        extractAttributes(methodDefIndex, methodAttributeExtractors, ignoredMethodAttributes, data);
+        return data;
     }
 
     /**
@@ -150,9 +214,11 @@ class CustomAttributeDecoder extends Decoder {
      * @param field the {@code Field} index
      * @return the custom attribute data
      */
-    CustomAttributeData getFieldAttributes(int field) {
+    FieldCustomAttributeData getFieldAttributes(int field) {
         var fieldIndex = CodedIndex.encode(FIELD, field, HAS_CUSTOM_ATTRIBUTE_TABLES);
-        return getAttributes(fieldIndex);
+        var data = new FieldCustomAttributeData();
+        extractAttributes(fieldIndex, fieldAttributeExtractors, ignoredFieldAttributes, data);
+        return data;
     }
 
     /**
@@ -161,14 +227,15 @@ class CustomAttributeDecoder extends Decoder {
      * @param param the {@code Param} index
      * @return the custom attribute data
      */
-    CustomAttributeData getParamAttributes(int param) {
-        var fieldIndex = CodedIndex.encode(PARAM, param, HAS_CUSTOM_ATTRIBUTE_TABLES);
-        return getAttributes(fieldIndex);
+    ParamCustomAttributeData getParamAttributes(int param) {
+        var paramIndex = CodedIndex.encode(PARAM, param, HAS_CUSTOM_ATTRIBUTE_TABLES);
+        var data = new ParamCustomAttributeData();
+        extractAttributes(paramIndex, paramAttributeExtractors, ignoredParamAttributes, data);
+        return data;
     }
 
-    private CustomAttributeData getAttributes(int hasCustomAttributeIndex) {
-        var data = new CustomAttributeData();
-
+    private <T> void extractAttributes(int hasCustomAttributeIndex, Map<QualifiedName, Extractor<T>> extractors,
+                                              Set<QualifiedName> ignoredAttributes, T data) {
         for (var customAttribute : metadataFile.getCustomAttributes(hasCustomAttributeIndex)) {
             var constructor = customAttribute.constructorIndex();
             assert constructor.table() == MEMBER_REF;
@@ -185,40 +252,12 @@ class CustomAttributeDecoder extends Decoder {
 
             if (ignoredAttributes.contains(qualifiedName))
                 continue;
-            assert relevantAttributes.contains(qualifiedName);
+            var extractor = extractors.get(qualifiedName);
+            assert extractor != null;
 
-            if (qualifiedName.equals(FLAGS_ATTRIBUTE)) {
-                data.isEnumFlags = true;
-            } else if (qualifiedName.equals(OBSOLETE_ATTRIBUTE)) {
-                data.isObsolete = true;
-            } else if (qualifiedName.equals(NATIVE_TYPEDEF_ATTRIBUTE)) {
-                data.isTypedef = true;
-            } else if (qualifiedName.equals(DOCUMENTATION_ATTRIBUTE)) {
-                data.documentationUrl = getLazyString(customAttribute, memberRef);
-            } else if (qualifiedName.equals(SUPPORTED_ARCHITECTURE_ATTRIBUTE)) {
-                var value = getValue(customAttribute, memberRef);
-                data.supportedArchitecture = ((Number) value.fixedArguments()[0].value()).intValue();
-            } else if (qualifiedName.equals(GUID_ATTRIBUTE)) {
-                var value = getValue(customAttribute, memberRef);
-                data.guidConstant = createGuidConstant(value);
-            } else if (qualifiedName.equals(CONSTANT_ATTRIBUTE)) {
-                var value = getValue(customAttribute, memberRef);
-                data.constantValue = value.fixedArguments()[0].value();
-            } else if (qualifiedName.equals(NATIVE_ENCODING_ATTRIBUTE)) {
-                var value = getValue(customAttribute, memberRef);
-                data.isAnsiEncoding = value.fixedArguments()[0].value().equals("ansi");
-            } else if (qualifiedName.equals(FLEXIBLE_ARRAY_ATTRIBUTE)) {
-                data.isFlexibleArray = true;
-            } else if (qualifiedName.equals(STRUCT_SIZE_FIELD_ATTRIBUTE)) {
-                var value = getValue(customAttribute, memberRef);
-                data.structSizeField = (String) value.fixedArguments()[0].value();
-            } else if (qualifiedName.equals(ASSOCIATED_ENUM_ATTRIBUTE)) {
-                var value = getValue(customAttribute, memberRef);
-                data.associatedEnumType = (String) value.fixedArguments()[0].value();
-            }
+            var context = new ExtractionContext(this, customAttribute, memberRef);
+            extractor.extract(context, data);
         }
-
-        return data;
     }
 
     private CustomAttributeValue getValue(CustomAttribute customAttribute, MemberRef memberRef) {
@@ -326,5 +365,20 @@ class CustomAttributeDecoder extends Decoder {
             leastSigBits = leastSigBits | (v << (56 - i * 8));
         }
         return new UUID(mostSigBits, leastSigBits);
+    }
+
+    record ExtractionContext(CustomAttributeDecoder decoder, CustomAttribute attribute, MemberRef memberRef) {
+        CustomAttributeValue getValue() {
+            return decoder.getValue(attribute, memberRef);
+        }
+
+        LazyString getLazyString() {
+            return decoder.getLazyString(attribute, memberRef);
+        }
+    }
+
+    @FunctionalInterface
+    interface Extractor<T> {
+        void extract(ExtractionContext context, T data);
     }
 }
