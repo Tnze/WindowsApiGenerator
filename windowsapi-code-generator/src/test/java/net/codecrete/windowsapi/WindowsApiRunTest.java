@@ -54,6 +54,35 @@ class WindowsApiRunTest {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
+    void cleanOldFiles_succeeds() throws IOException {
+        var temporaryFolder = Files.createTempDirectory("temporary-folder");
+        try {
+            var outputDirectory = temporaryFolder.resolve("output");
+            var inner1Directory = outputDirectory.resolve("inner1");
+            var inner2Directory = inner1Directory.resolve("inner2");
+            inner2Directory.toFile().mkdirs();
+            var inner3Directory = inner1Directory.resolve("inner3");
+            inner3Directory.toFile().mkdirs();
+            var inner2JavaPath = inner2Directory.resolve("inner2.java");
+            Files.writeString(inner2JavaPath, "Hello World");
+            Files.writeString(inner2Directory.resolve("inner3.java"), "Hello World");
+
+            var relativeJavaPath = outputDirectory.relativize(inner2JavaPath);
+
+            var run = new WindowsApiRun();
+            run.setOutputDirectory(outputDirectory);
+            run.deleteOldFiles(Set.of(relativeJavaPath));
+
+            assertThat(inner2Directory).exists();
+            assertThat(inner3Directory).doesNotExist();
+
+        } finally {
+            Testing.deleteDirectory(temporaryFolder);
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Test
     void cleanedDirectory_isEmpty() throws IOException {
         var temporaryFolder = Files.createTempDirectory("temporary-folder");
         try {

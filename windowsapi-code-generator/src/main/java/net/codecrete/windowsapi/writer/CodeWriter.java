@@ -22,6 +22,8 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Generates Java code for a given scope of types, functions, and constants.
@@ -35,6 +37,8 @@ public class CodeWriter extends JavaCodeWriter<Type> {
     private final CallbackFunctionCodeWriter callbackFunctionCodeWriter;
     private final ConstantCodeWriter constantCodeWriter;
     private final ComInterfaceWriter comInterfaceWriter;
+    private Set<Path> generatedFiles;
+    private boolean isDryRun;
 
     /**
      * Creates a new instance.
@@ -54,6 +58,7 @@ public class CodeWriter extends JavaCodeWriter<Type> {
         callbackFunctionCodeWriter = new CallbackFunctionCodeWriter(generationContext());
         constantCodeWriter = new ConstantCodeWriter(generationContext());
         comInterfaceWriter = new ComInterfaceWriter(generationContext());
+        isDryRun = false;
 
         if (Files.notExists(outputDirectory))
             throw new IllegalArgumentException("Output directory does not exist: " + outputDirectory);
@@ -61,6 +66,8 @@ public class CodeWriter extends JavaCodeWriter<Type> {
 
     private PrintWriter createFileWriter(Path path) {
         var fullPath = outputDirectory.resolve(path);
+        if (generatedFiles != null)
+            generatedFiles.add(path);
 
         try {
             // create the directory if needed
@@ -85,6 +92,17 @@ public class CodeWriter extends JavaCodeWriter<Type> {
     }
 
     /**
+     * Gets the generated files (set of {@code Path} instances).
+     * <p>
+     * The path is relative to the output directory.
+     * </p>
+     * @return generated files, or {@code null} for dry runs
+     */
+    public Set<Path> getGeneratedFiles() {
+        return generatedFiles;
+    }
+
+    /**
      * Sets the base package.
      * <p>
      * The base package is prepended to all package names derived from Microsoft's namespace.
@@ -106,6 +124,7 @@ public class CodeWriter extends JavaCodeWriter<Type> {
      * @param isDryRun {@code true} for dry run, {@code false} for real run
      */
     public void setDryRun(boolean isDryRun) {
+        this.isDryRun = isDryRun;
         generationContext.setWriterFactory(isDryRun ? CodeWriter::createNullWriter : this::createFileWriter);
     }
 
@@ -115,6 +134,8 @@ public class CodeWriter extends JavaCodeWriter<Type> {
      * @param scope the scope
      */
     public void write(Scope scope) {
+        if (!isDryRun)
+            generatedFiles = new HashSet<>();
         scope.getTransitiveTypeScope().forEach(this::writeType);
         scope.getFunctions().forEach(functionCodeWriter::writeFunctions);
         scope.getConstants().forEach(constantCodeWriter::writeConstants);

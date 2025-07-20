@@ -20,6 +20,8 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -287,6 +289,10 @@ public class WindowsApiRun {
         writer.setDryRun(isDryRun);
         writer.setBasePackage(basePackage);
         writer.write(scope);
+
+        var generatedFiles = writer.getGeneratedFiles();
+        if (generatedFiles != null)
+            deleteOldFiles(generatedFiles);
     }
 
     private boolean isAnyWork() {
@@ -308,6 +314,60 @@ public class WindowsApiRun {
             throw new GenerationException("Unable to create directory " + path);
 
         eventListener.onEvent(new Event.DirectoryCreated(path));
+    }
+
+    /**
+     * Deletes all files in the output directory except the specified ones.
+     * <p>
+     * Empty directories are also deleted.
+     * </p>
+     *
+     * @param generatedFiles set of paths (relative to output directory)
+     */
+    void deleteOldFiles(Set<Path> generatedFiles) {
+        try {
+            Files.walkFileTree(outputDirectory, new FileVisitor<>() {
+
+                private final Deque<Boolean> isEmptyDirectoryStack = new ArrayDeque<>();
+                private boolean isEmptyDirectory = true;
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                    isEmptyDirectoryStack.push(isEmptyDirectory);
+                    isEmptyDirectory = true;
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    var relative = outputDirectory.relativize(file);
+                    if (generatedFiles.contains(relative)) {
+                        isEmptyDirectory = false;
+                    } else {
+                        Files.delete(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    throw new UncheckedIOException("Unable to delete old files in output directory " + outputDirectory, exc);
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    if (isEmptyDirectory && !dir.equals(outputDirectory))
+                        Files.delete(dir);
+                    isEmptyDirectory = isEmptyDirectoryStack.pop() && isEmptyDirectory;
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+
+            eventListener.onEvent(new Event.DirectoryCleaned(outputDirectory));
+
+        } catch (IOException exc) {
+            throw new UncheckedIOException("Unable to clean output directory " + outputDirectory, exc);
+        }
     }
 
     /**
