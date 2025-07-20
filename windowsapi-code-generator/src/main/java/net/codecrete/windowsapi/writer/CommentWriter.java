@@ -7,6 +7,7 @@
 package net.codecrete.windowsapi.writer;
 
 import net.codecrete.windowsapi.metadata.Array;
+import net.codecrete.windowsapi.metadata.ConstantValue;
 import net.codecrete.windowsapi.metadata.Member;
 import net.codecrete.windowsapi.metadata.Method;
 import net.codecrete.windowsapi.metadata.Pointer;
@@ -164,6 +165,35 @@ class CommentWriter {
                             """,
                     documentationUrl,
                     function.nativeName()
+            );
+        }
+    }
+
+    void writeConstantComment(PrintWriter writer, ConstantValue constant, String constantType, String formattedValue) {
+        if (formattedValue != null) {
+            writer.printf("""
+                    /**
+                     * %s constant {@code %s} (%s).
+                """, constantType, constant.name(), formattedValue);
+        } else {
+            writer.printf("""
+                        /**
+                         * %s constant {@code %s}.
+                    """, constantType, constant.name());
+        }
+        writeDocumentationUrl(writer, constant);
+        writer.println("    */");
+    }
+
+    private void writeDocumentationUrl(PrintWriter writer, ConstantValue constant) {
+        var documentationUrl = constant.documentationUrl();
+        if (documentationUrl != null) {
+            writer.printf("""
+                                 *
+                                 * @see <a href="%1$s">%2$s (Microsoft)</a>
+                            """,
+                    documentationUrl,
+                    constant.name()
             );
         }
     }

@@ -23,6 +23,8 @@ import java.util.UUID;
  */
 class ConstantCodeWriter extends JavaCodeWriter<Type> {
 
+    private final CommentWriter commentWriter = new CommentWriter();
+
     /**
      * Creates a new instance.
      *
@@ -115,11 +117,8 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
         else
             typeName = constant.type().name();
 
-        writer.printf("""
-                    /**
-                     * Numeric constant {@code %s} (%s).
-                     */
-                """, constant.name(), typeName);
+        commentWriter.writeConstantComment(writer, constant, "Numeric", typeName);
+
         writer.printf("    public static final %s %s = ", getJavaType(constant.type()), constant.name());
         writeValue(constant.type(), constant.value());
         writer.println(";");
@@ -146,22 +145,15 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
                 !constant.isAnsiEncoding() ? ", java.nio.charset.StandardCharsets.UTF_16LE" : ""
         );
 
-        writer.printf("""
-                    /**
-                     * String constant {@code %s} (%s).
-                     */
-                """, constant.name(), stringType);
+        commentWriter.writeConstantComment(writer, constant, "String", stringType);
         writeMemorySegmentConstant(constant.name());
     }
 
     private void writeGuidConstant(ConstantValue constant) {
         writeGuidConstantMemorySegment(constant.name(), (UUID) constant.value(), 4);
 
-        writer.printf("""
-                    /**
-                     * GUID constant {@code %s} ({@code {%s}}).
-                     */
-                """, constant.name(), constant.value());
+        commentWriter.writeConstantComment(writer, constant, "GUID",
+                String.format("{@code {%s}}", constant.value()));
         writeMemorySegmentConstant(constant.name());
     }
 
@@ -190,11 +182,7 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
                 
                 """, constant.name(), v1, v2, v3);
 
-        writer.printf("""
-                    /**
-                     * Property key constant {@code %s}.
-                     */
-                """, constant.name());
+        commentWriter.writeConstantComment(writer, constant, "Property key", null);
         writeMemorySegmentConstant(constant.name());
     }
 
@@ -210,11 +198,7 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
         writer.println(");");
         writer.println();
 
-        writer.printf("""
-                    /**
-                     * Binary constant {@code %s}.
-                     */
-                """, constant.name());
+        commentWriter.writeConstantComment(writer, constant, "Binary", null);
         writeMemorySegmentConstant(constant.name());
     }
 
@@ -225,11 +209,7 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
                 
                 """, constant.name(), constant.value());
 
-        writer.printf("""
-                    /**
-                     * %s constant {@code %s}.
-                     */
-                """, constant.type().name(), constant.name());
+        commentWriter.writeConstantComment(writer, constant, constant.type().name(), null);
         writeMemorySegmentConstant(constant.name());
     }
 

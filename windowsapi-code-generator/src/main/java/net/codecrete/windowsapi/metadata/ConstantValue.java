@@ -9,11 +9,13 @@ package net.codecrete.windowsapi.metadata;
 /**
  * Value of a constant.
  *
- * @param name           the constant name
- * @param namespace      the constant's namespace
- * @param type           the constant type
- * @param value          the constant value
- * @param isAnsiEncoding flag indicating if a string value is encoded as ANSI (Windows-1252) or Unicode (UTF-16).
+ * @param name             the constant name
+ * @param namespace        the constant's namespace
+ * @param type             the constant type
+ * @param value            the constant value
+ * @param isAnsiEncoding   flag indicating if a string value is encoded as ANSI (Windows-1252) or Unicode (UTF-16).
+ * @param documentationUrl URL to documentation
  */
-public record ConstantValue(String name, Namespace namespace, Type type, Object value, boolean isAnsiEncoding) {
+public record ConstantValue(String name, Namespace namespace, Type type, Object value, boolean isAnsiEncoding,
+                            LazyString documentationUrl) {
 }

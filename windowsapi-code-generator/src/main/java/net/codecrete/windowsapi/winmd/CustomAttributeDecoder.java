@@ -43,22 +43,27 @@ class CustomAttributeDecoder extends Decoder {
     private static final String SYSTEM = "System";
     private static final String METADATA = "Windows.Win32.Foundation.Metadata";
     private static final QualifiedName FLAGS_ATTRIBUTE = new QualifiedName(SYSTEM, "FlagsAttribute");
-    private static final QualifiedName ASSOCIATED_ENUM_ATTRIBUTE = new QualifiedName(METADATA, "AssociatedEnumAttribute");
+    private static final QualifiedName ASSOCIATED_ENUM_ATTRIBUTE = new QualifiedName(METADATA,
+            "AssociatedEnumAttribute");
     private static final QualifiedName CONSTANT_ATTRIBUTE = new QualifiedName(METADATA, "ConstantAttribute");
     private static final QualifiedName DOCUMENTATION_ATTRIBUTE = new QualifiedName(METADATA, "DocumentationAttribute");
     private static final QualifiedName FLEXIBLE_ARRAY_ATTRIBUTE = new QualifiedName(METADATA, "FlexibleArrayAttribute");
     private static final QualifiedName GUID_ATTRIBUTE = new QualifiedName(METADATA, "GuidAttribute");
-    private static final QualifiedName NATIVE_ENCODING_ATTRIBUTE = new QualifiedName(METADATA, "NativeEncodingAttribute");
+    private static final QualifiedName NATIVE_ENCODING_ATTRIBUTE = new QualifiedName(METADATA,
+            "NativeEncodingAttribute");
     private static final QualifiedName NATIVE_TYPEDEF_ATTRIBUTE = new QualifiedName(METADATA, "NativeTypedefAttribute");
-    private static final QualifiedName STRUCT_SIZE_FIELD_ATTRIBUTE = new QualifiedName(METADATA, "StructSizeFieldAttribute");
-    private static final QualifiedName SUPPORTED_ARCHITECTURE_ATTRIBUTE = new QualifiedName(METADATA, "SupportedArchitectureAttribute");
+    private static final QualifiedName STRUCT_SIZE_FIELD_ATTRIBUTE = new QualifiedName(METADATA,
+            "StructSizeFieldAttribute");
+    private static final QualifiedName SUPPORTED_ARCHITECTURE_ATTRIBUTE = new QualifiedName(METADATA,
+            "SupportedArchitectureAttribute");
 
     /**
      * Attribute extractors for types
      */
     private static final Map<QualifiedName, Extractor<TypeCustomAttributeData>> typeAttributeExtractors = Map.of(
             SUPPORTED_ARCHITECTURE_ATTRIBUTE,
-            (context, data) -> data.supportedArchitecture = ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
+            (context, data) -> data.supportedArchitecture =
+                    ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
             DOCUMENTATION_ATTRIBUTE,
             (context, data) -> data.documentationUrl = context.getLazyString(),
             FLAGS_ATTRIBUTE,
@@ -96,7 +101,8 @@ class CustomAttributeDecoder extends Decoder {
      */
     private static final Map<QualifiedName, Extractor<MethodCustomAttributeData>> methodAttributeExtractors = Map.of(
             SUPPORTED_ARCHITECTURE_ATTRIBUTE,
-            (context, data) -> data.supportedArchitecture = ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
+            (context, data) -> data.supportedArchitecture =
+                    ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
             DOCUMENTATION_ATTRIBUTE,
             (context, data) -> data.documentationUrl = context.getLazyString(),
             CONSTANT_ATTRIBUTE,
@@ -120,8 +126,6 @@ class CustomAttributeDecoder extends Decoder {
      * Attributes extractors for fields
      */
     private static final Map<QualifiedName, Extractor<FieldCustomAttributeData>> fieldAttributeExtractors = Map.of(
-            SUPPORTED_ARCHITECTURE_ATTRIBUTE,
-            (context, data) -> data.supportedArchitecture = ((Number) context.getValue().fixedArguments()[0].value()).intValue(),
             DOCUMENTATION_ATTRIBUTE,
             (context, data) -> data.documentationUrl = context.getLazyString(),
             GUID_ATTRIBUTE,
@@ -137,7 +141,9 @@ class CustomAttributeDecoder extends Decoder {
     /**
      * Set of ignored custom attributes for fields.
      */
-    private static final Set<QualifiedName> ignoredFieldAttributes = Set.of();
+    private static final Set<QualifiedName> ignoredFieldAttributes = Set.of(
+            new QualifiedName(METADATA, "ConstAttribute")
+    );
 
     /**
      * Attributes extractors for parameters
@@ -235,7 +241,7 @@ class CustomAttributeDecoder extends Decoder {
     }
 
     private <T> void extractAttributes(int hasCustomAttributeIndex, Map<QualifiedName, Extractor<T>> extractors,
-                                              Set<QualifiedName> ignoredAttributes, T data) {
+                                       Set<QualifiedName> ignoredAttributes, T data) {
         for (var customAttribute : metadataFile.getCustomAttributes(hasCustomAttributeIndex)) {
             var constructor = customAttribute.constructorIndex();
             assert constructor.table() == MEMBER_REF;

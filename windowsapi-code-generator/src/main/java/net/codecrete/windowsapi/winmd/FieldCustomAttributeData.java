@@ -1,6 +1,5 @@
 package net.codecrete.windowsapi.winmd;
 
-import net.codecrete.windowsapi.metadata.Architecture;
 import net.codecrete.windowsapi.metadata.LazyString;
 
 import java.util.UUID;
@@ -9,10 +8,6 @@ import java.util.UUID;
  * Custom attribute data for fields.
  */
 public class FieldCustomAttributeData {
-    /**
-     * Supported processor architectures.
-     */
-    int supportedArchitecture = Architecture.ALL;
     /**
      * URL to Microsoft's documentation.
      */

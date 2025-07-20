@@ -314,7 +314,7 @@ public class MetadataBuilder implements TypeLookup {
                 .toList();
         for (var struct : guidConstants) {
             metadata.removeType(struct, true);
-            var constant = new ConstantValue(struct.name(), struct.namespace(), systemGuidType, struct.guid(), false);
+            var constant = new ConstantValue(struct.name(), struct.namespace(), systemGuidType, struct.guid(), false, struct.documentationUrl());
             struct.namespace().addConstant(constant);
         }
     }
@@ -393,18 +393,18 @@ public class MetadataBuilder implements TypeLookup {
             var typeName = type.name();
 
             ConstantValue constant;
+            var customData = customAttributeDecoder.getFieldAttributes(field.fieldIndex());
             if (value instanceof Number) {
-                constant = new ConstantValue(name, namespace, type, value, false);
+                constant = new ConstantValue(name, namespace, type, value, false, customData.documentationUrl);
             } else {
-                var customAttributesData = customAttributeDecoder.getFieldAttributes(field.fieldIndex());
                 if (value instanceof String) {
-                    constant = new ConstantValue(name, namespace, type, value, customAttributesData.isAnsiEncoding);
+                    constant = new ConstantValue(name, namespace, type, value, customData.isAnsiEncoding, customData.documentationUrl);
                 } else if (type == systemGuidType) {
-                    constant = new ConstantValue(name, namespace, type, customAttributesData.guidConstant, false);
+                    constant = new ConstantValue(name, namespace, type, customData.guidConstant, false, customData.documentationUrl);
                 } else if (STATIC_INITIALIZER_CONSTANT_TYPES.contains(typeName)) {
-                    constant = new ConstantValue(name, namespace, type, customAttributesData.constantValue, false);
+                    constant = new ConstantValue(name, namespace, type, customData.constantValue, false, customData.documentationUrl);
                 } else {
-                    throw new AssertionError("Unsupported constant type: " + typeName + " / " + customAttributesData.constantValue);
+                    throw new AssertionError("Unsupported constant type: " + typeName + " / " + customData.constantValue);
                 }
             }
 
