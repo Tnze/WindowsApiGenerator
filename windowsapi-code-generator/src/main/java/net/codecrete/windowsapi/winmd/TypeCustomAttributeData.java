@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * Custom attribute data for types.
  */
-public class TypeCustomAttributeData {
+class TypeCustomAttributeData {
     /**
      * Supported processor architectures.
      */

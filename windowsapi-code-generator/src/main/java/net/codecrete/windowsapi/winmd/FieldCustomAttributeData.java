@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * Custom attribute data for fields.
  */
-public class FieldCustomAttributeData {
+class FieldCustomAttributeData {
     /**
      * URL to Microsoft's documentation.
      */
