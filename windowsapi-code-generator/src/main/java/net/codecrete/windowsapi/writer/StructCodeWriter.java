@@ -495,6 +495,10 @@ class StructCodeWriter extends JavaCodeWriter<Struct> {
                 type.nativeName(),
                 postfix);
 
+        writer.print("""
+                 * <p>
+                """);
+
         commentWriter.writeStructSnippet(writer, type);
 
         writer.print("""
