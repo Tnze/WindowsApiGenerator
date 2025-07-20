@@ -32,14 +32,6 @@ public sealed interface Event {
     }
 
     /**
-     * Event notifying that a directory has been cleaned.
-     *
-     * @param path path to the directory
-     */
-    record DirectoryCleaned(Path path) implements Event {
-    }
-
-    /**
      * Event notifying that an argument passed to the code generation is invalid.
      * <p>
      * For arguments with a list type, this event might be raised multiple times.

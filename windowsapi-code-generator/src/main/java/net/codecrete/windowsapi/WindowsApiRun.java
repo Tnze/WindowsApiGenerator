@@ -363,8 +363,6 @@ public class WindowsApiRun {
                 }
             });
 
-            eventListener.onEvent(new Event.DirectoryCleaned(outputDirectory));
-
         } catch (IOException exc) {
             throw new UncheckedIOException("Unable to clean output directory " + outputDirectory, exc);
         }
@@ -405,8 +403,6 @@ public class WindowsApiRun {
                     return FileVisitResult.CONTINUE;
                 }
             });
-
-            eventListener.onEvent(new Event.DirectoryCleaned(outputDirectory));
 
         } catch (IOException exc) {
             throw new UncheckedIOException("Unable to clean output directory " + outputDirectory, exc);
