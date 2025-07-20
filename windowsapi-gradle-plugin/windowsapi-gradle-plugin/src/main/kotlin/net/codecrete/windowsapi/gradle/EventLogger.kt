@@ -17,7 +17,6 @@ class EventLogger(private val logger: Logger) : EventListener {
     override fun onEvent(event: Event) {
         when (event) {
             is Event.JavaSourceGenerated -> logger.info("Generated java file {}", event.path)
-            is Event.DirectoryCleaned -> logger.info("Deleted all files and directories in output directory {}", event.path)
             is Event.DirectoryCreated -> logger.info("Created source directory {}", event.path)
             is Event.InvalidArgument -> logger.error("'{}' is invalid for argument {}: {}", event.value, event.argument, event.reason)
         }
