@@ -368,47 +368,6 @@ public class WindowsApiRun {
         }
     }
 
-    /**
-     * Cleans the output directory.
-     * <p>
-     * All files in the directory are deleted but not the directory itself.
-     * </p>
-     */
-    public void cleanOutputDirectory() {
-        if (!outputDirectory.toFile().exists())
-            return;
-
-        try {
-            Files.walkFileTree(outputDirectory, new FileVisitor<>() {
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                    throw new UncheckedIOException("Unable to clean output directory " + outputDirectory, exc);
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (!dir.equals(outputDirectory))
-                        Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-
-        } catch (IOException exc) {
-            throw new UncheckedIOException("Unable to clean output directory " + outputDirectory, exc);
-        }
-    }
-
     static class NullEventListener implements EventListener {
         @Override
         public void onEvent(Event event) {

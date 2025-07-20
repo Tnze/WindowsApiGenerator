@@ -31,7 +31,7 @@ jobs:
       run: mvn install
       working-directory: ./windowsapi-code-generator
     - name: Generate full Windows API
-      run: java --class-path windowsapi-code-generator/target/test-classes:windowsapi-code-generator/target/code-generator-0.8.0.jar net.codecrete.windowsapi.special.FullBuild integration-tests/full-build/src/main/java
+      run: java --class-path windowsapi-code-generator/target/test-classes:windowsapi-code-generator/target/code-generator-0.8.1.jar net.codecrete.windowsapi.special.FullBuild integration-tests/full-build/src/main/java
     - name: Build full Windows API
       run: mvn package
       working-directory: ./integration-tests/full-build

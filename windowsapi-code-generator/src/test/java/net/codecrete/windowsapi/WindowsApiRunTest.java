@@ -80,27 +80,4 @@ class WindowsApiRunTest {
             Testing.deleteDirectory(temporaryFolder);
         }
     }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    @Test
-    void cleanedDirectory_isEmpty() throws IOException {
-        var temporaryFolder = Files.createTempDirectory("temporary-folder");
-        try {
-            var outputDirectory = temporaryFolder.resolve("output");
-            var inner1Directory = outputDirectory.resolve("inner1");
-            var inner2Directory = inner1Directory.resolve("inner2");
-            inner2Directory.toFile().mkdirs();
-            Files.writeString(inner1Directory.resolve("inner1.txt"), "Hello World");
-
-            var run = new WindowsApiRun();
-            run.setOutputDirectory(outputDirectory);
-            run.cleanOutputDirectory();
-            assertThat(outputDirectory).exists();
-            // delete will only succeed if directory is empty
-            assertDoesNotThrow(() -> Files.delete(outputDirectory));
-
-        } finally {
-            Testing.deleteDirectory(temporaryFolder);
-        }
-    }
 }
