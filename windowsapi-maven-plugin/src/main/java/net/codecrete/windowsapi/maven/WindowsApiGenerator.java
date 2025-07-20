@@ -121,13 +121,6 @@ public class WindowsApiGenerator extends AbstractMojo {
     @Parameter(name = "addAsTestSourceRoot", defaultValue = "false")
     boolean addAsTestSourceRoot;
 
-    /**
-     * If set to {@code true}, the output directory will be cleaned before
-     * code is generated.
-     */
-    @Parameter(name = "cleanOutputDirectory", defaultValue = "true")
-    boolean cleanOutputDirectory;
-
     public void execute() throws MojoExecutionException {
         try {
             var sourceFolder = outputDirectory;
@@ -137,9 +130,6 @@ public class WindowsApiGenerator extends AbstractMojo {
             }
 
             var run = createRun(sourceFolder);
-
-            if (cleanOutputDirectory)
-                run.cleanOutputDirectory();
 
             run.createDirectory(sourceFolder.toAbsolutePath());
 

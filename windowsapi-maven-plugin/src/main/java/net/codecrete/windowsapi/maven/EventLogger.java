@@ -7,7 +7,6 @@
 package net.codecrete.windowsapi.maven;
 
 import net.codecrete.windowsapi.events.Event;
-import net.codecrete.windowsapi.events.Event.DirectoryCleaned;
 import net.codecrete.windowsapi.events.Event.DirectoryCreated;
 import net.codecrete.windowsapi.events.Event.JavaSourceGenerated;
 import net.codecrete.windowsapi.events.EventListener;
@@ -38,10 +37,6 @@ public class EventLogger implements EventListener {
             case DirectoryCreated(var path) -> {
                 if (logger.isDebugEnabled())
                     logger.debug("Created source directory " + path);
-            }
-            case DirectoryCleaned(var path) -> {
-                if (logger.isDebugEnabled())
-                    logger.debug("Deleted all files and directories in output directory " + path);
             }
             case Event.InvalidArgument(var argument, var value, var reason)
                     -> logger.error(String.format("Invalid value '%s' for argument %s: %s", value, argument, reason));
