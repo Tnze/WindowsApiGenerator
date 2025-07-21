@@ -18,6 +18,8 @@ class EventLogger(private val logger: Logger) : EventListener {
         when (event) {
             is Event.JavaSourceGenerated -> logger.info("Generated java file {}", event.path)
             is Event.DirectoryCreated -> logger.info("Created source directory {}", event.path)
+            is Event.FileDeleted -> logger.info("File deleted {}", event.path)
+            is Event.DirectoryDeleted -> logger.info("Directory deleted {}", event.path)
             is Event.InvalidArgument -> logger.error("'{}' is invalid for argument {}: {}", event.value, event.argument, event.reason)
         }
     }
