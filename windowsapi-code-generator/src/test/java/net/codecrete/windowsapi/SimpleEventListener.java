@@ -17,6 +17,9 @@ public class SimpleEventListener implements EventListener {
             case Event.JavaSourceGenerated(var path) -> System.out.println("File generated: " + path);
             case Event.InvalidArgument(var ignored1, var ignored2, var reason) ->
                     System.out.println("Error: " + reason);
+            case Event.DirectoryCreated(var path) -> System.out.println("Directory created: " + path);
+            case Event.FileDeleted(var path) -> System.out.println("File deleted: " + path);
+            case Event.DirectoryDeleted(var path) -> System.out.println("Directory deleted: " + path);
             default -> System.out.println("Unknown event: " + event);
         }
     }

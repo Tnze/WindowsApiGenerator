@@ -345,6 +345,7 @@ public class WindowsApiRun {
                         isEmptyDirectory = false;
                     } else {
                         Files.delete(file);
+                        eventListener.onEvent(new Event.FileDeleted(file));
                     }
                     return FileVisitResult.CONTINUE;
                 }
@@ -356,8 +357,10 @@ public class WindowsApiRun {
 
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (isEmptyDirectory && !dir.equals(outputDirectory))
+                    if (isEmptyDirectory && !dir.equals(outputDirectory)) {
                         Files.delete(dir);
+                        eventListener.onEvent(new Event.DirectoryDeleted(dir));
+                    }
                     isEmptyDirectory = isEmptyDirectoryStack.pop() && isEmptyDirectory;
                     return FileVisitResult.CONTINUE;
                 }

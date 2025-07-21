@@ -43,4 +43,28 @@ public sealed interface Event {
      */
     record InvalidArgument(String argument, String value, String reason) implements Event {
     }
+
+    /**
+     * Event notifying that a file has been deleted.
+     * <p>
+     * Old files in the output directory are deleted after code generation to
+     * ensure the output directory only contains generated files matching the
+     * current configuration.
+     * </p>
+     *
+     * @param path the path to the deleted file
+     */
+    record FileDeleted(Path path) implements Event {
+    }
+
+    /**
+     * Event notifying that a directory has been deleted.
+     * <p>
+     * Empty directories in the output directory are deleted after code generation.
+     * </p>
+     *
+     * @param path the path to the deleted directory
+     */
+    record DirectoryDeleted(Path path) implements Event {
+    }
 }

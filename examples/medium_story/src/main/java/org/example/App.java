@@ -18,6 +18,7 @@ import static windows.win32.storage.filesystem.Apis.GetVolumePathNameW;
 import static windows.win32.ui.shell.Apis.SHGetKnownFolderPath;
 import static windows.win32.ui.shell.Constants.FOLDERID_CommonPrograms;
 
+@SuppressWarnings("java:S106")
 public class App {
     public static void main(String[] args) {
         try (var arena = Arena.ofConfined()) {
