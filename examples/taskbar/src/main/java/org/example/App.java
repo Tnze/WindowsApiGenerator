@@ -74,7 +74,7 @@ public class App {
                 checkSuccessful(hr);
 
                 // Wrap instance in easy-to-use Java object
-                taskbarList = ITaskbarList3.wrap(taskbarListOut.get(ITaskbarList3.addressLayout(), 0));
+                taskbarList = ITaskbarList3.wrap(taskbarListOut.get(ADDRESS, 0));
 
                 // Initializes the taskbar list object. This method must be called before any other ITaskbarList methods can be called.
                 hr = taskbarList.HrInit();

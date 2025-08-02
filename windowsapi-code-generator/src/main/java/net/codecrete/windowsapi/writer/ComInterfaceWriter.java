@@ -150,7 +150,7 @@ class ComInterfaceWriter extends FunctionCodeWriterBase<ComInterface> {
         writeComment("Wraps the given COM object in a Java object with methods to call the COM interface functions.");
         writer.printf("""
                     static %s wrap(MemorySegment comObject) {
-                        return new $DOWNCALL(comObject);
+                        return new $DOWNCALL(comObject.reinterpret(8L));
                     }
                 
                 """, className);
