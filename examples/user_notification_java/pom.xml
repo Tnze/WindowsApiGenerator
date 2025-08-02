@@ -40,7 +40,6 @@
                 <comInterface>IUserNotification2</comInterface>
               </comInterfaces>
               <enumerations>
-                <enumeration>COINIT</enumeration>
                 <enumeration>NOTIFY_ICON_INFOTIP_FLAGS</enumeration>
               </enumerations>
               <constants>
