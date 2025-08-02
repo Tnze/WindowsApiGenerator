@@ -30,7 +30,7 @@ class ComTest {
             var result = CreateUri(uriString, Uri_CREATE_CANONICALIZE, 0, uriHolder);
             WindowsErrorAssert.assertThat(result).isSuccessful();
 
-            var uri = IUri.wrap(uriHolder.get(IUri.addressLayout(), 0));
+            var uri = IUri.wrap(uriHolder.get(ADDRESS, 0));
 
             var propertyHolder = arena.allocate(ADDRESS);
             result = uri.GetPropertyBSTR(Uri_PROPERTY.DOMAIN, propertyHolder, 0);

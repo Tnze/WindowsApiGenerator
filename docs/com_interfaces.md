@@ -22,7 +22,7 @@ In Java, the function call could look like this:
 var uriHolder = arena.allocate(ADDRESS);
 var uriString = arena.allocateFrom("https://www.google.com", UTF_16LE);
 var result = CreateUri(uriString, Uri_CREATE_CANONICALIZE, 0, uriHolder);
-var uriPointer = uriHolder.get(IUri.addressLayout(), 0);
+var uriPointer = uriHolder.get(ADDRESS, 0);
 ```
 
 `uriPointer` is the pointer to the [`IUri`](https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/ms775038(v=vs.85)) COM object (`MemorySegment`). It can be turned into an easily usable Java object using `wrap()`:

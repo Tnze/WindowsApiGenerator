@@ -12,8 +12,6 @@ import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.nio.charset.StandardCharsets.UTF_16LE;
 import static net.codecrete.windowsapi.examples.Windows.checkSuccessful;
-import static windows.win32.foundation.Constants.S_FALSE;
-import static windows.win32.foundation.Constants.S_OK;
 import static windows.win32.system.com.Apis.CoCreateInstance;
 import static windows.win32.system.com.Apis.CoInitializeEx;
 import static windows.win32.ui.shell.Constants.UserNotification;
@@ -34,7 +32,7 @@ public class App {
             checkSuccessful(result);
 
             // Wrap the COM instance in an easy-to-use Java object
-            var notification = IUserNotification2.wrap(holder.get(IUserNotification2.addressLayout(), 0));
+            var notification = IUserNotification2.wrap(holder.get(ADDRESS, 0));
 
             // Configure a balloon info
             var title = arena.allocateFrom("Windows API", UTF_16LE);

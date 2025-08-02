@@ -7,8 +7,6 @@
 package net.codecrete.windowsapi.examples
 
 import net.codecrete.windowsapi.examples.Windows.checkSuccessful
-import windows.win32.foundation.Constants.S_FALSE
-import windows.win32.foundation.Constants.S_OK
 import windows.win32.foundation.WIN32_ERROR
 import windows.win32.system.com.Apis.CoCreateInstance
 import windows.win32.system.com.Apis.CoInitializeEx
@@ -37,7 +35,7 @@ fun main() {
         checkSuccessful(result)
 
         // Wrap the COM instance in an easy-to-use Java/Kotlin object
-        val notification = IUserNotification2.wrap(holder.get(IUserNotification2.addressLayout(), 0))
+        val notification = IUserNotification2.wrap(holder.get(ADDRESS, 0))
 
         // Configure a balloon info
         val title = arena.allocateFrom("Windows API", UTF_16LE)
