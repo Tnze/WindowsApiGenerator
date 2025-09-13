@@ -14,6 +14,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
@@ -85,7 +86,7 @@ public class WindowsApiGenerator extends AbstractMojo {
      * Location of the output directory for the generated code.
      */
     @Parameter(name = "outputDirectory", defaultValue = "${project.build.directory}/generated-sources/windows-api")
-    Path outputDirectory;
+    File outputDirectory;
 
     /**
      * The source directory within the output directory (relative path).
@@ -123,7 +124,7 @@ public class WindowsApiGenerator extends AbstractMojo {
 
     public void execute() throws MojoExecutionException {
         try {
-            var sourceFolder = outputDirectory;
+            var sourceFolder = Path.of(outputDirectory.toURI());
             if (sourceDirectory != null) {
                 var sourceDirectoryPath = Path.of(sourceDirectory);
                 sourceFolder = sourceFolder.resolve(sourceDirectoryPath);
