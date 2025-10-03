@@ -282,10 +282,10 @@ class CustomAttributeDecoder extends Decoder {
         // See ECMA-335, II.23.2.2
         signature.readByte();
         var paramCount = signature.readCompressedUnsignedInt();
-        var returnType = decodeType(signature, null);
+        var returnType = decodeType(signature, null, null);
         var params = new Type[paramCount];
         for (int i = 0; i < paramCount; i++) {
-            params[i] = decodeType(signature, null);
+            params[i] = decodeType(signature, null, null);
             assert params[i] != null; // no support for variable arguments
         }
 

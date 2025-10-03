@@ -98,6 +98,9 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
                     writePropertyKey(constant);
                 } else if (typeName.equals("SID_IDENTIFIER_AUTHORITY")) {
                     writeByteArrayConstant(constant);
+                } else if (constant.name().equals("GUID_DATABASE_32K_PAGES_OPTIONAL_FEATURE_BYTE")) {
+                    // Special case: this constant is defined as a string, but it is actually a byte array
+                    writeUTF16ByteArrayConstant(constant);
                 } else if (POINTER_STRUCT_TYPES.contains(typeName)) {
                     writePointerStruct(constant);
                 } else {
@@ -167,15 +170,15 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
         assert numbers.length == 12;
 
         var data1 = (long) numbers[0];
-        var data2 = numbers[1] << 32;
-        var data3 = numbers[2] << 48;
+        var data2 = ((long) numbers[1]) << 32;
+        var data3 = ((long) numbers[2]) << 48;
         var v1 = data1 | data2 | data3;
 
         var v2 = 0L;
         for (int i = 10; i >= 3; i--)
             v2 = (v2 << 8) | numbers[i];
 
-        var v3 = numbers[11].intValue();
+        var v3 = numbers[11];
 
         writer.printf("""
                     private static final MemorySegment %s$SEG = createPropertyKey(%dL, %dL, %d);
@@ -188,12 +191,21 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
 
     private void writeByteArrayConstant(ConstantValue constant) {
         var numbers = parseNumbers(constant.value().toString());
+        writeByteArrayConstant(constant, numbers);
+    }
 
+    private void writeUTF16ByteArrayConstant(ConstantValue constant) {
+        // writes a byte array that has been encoded as a UTF-16 string
+        var bytes = constant.value().toString().chars().toArray();
+        writeByteArrayConstant(constant, bytes);
+    }
+
+    private void writeByteArrayConstant(ConstantValue constant, int[] bytes) {
         writer.printf("    private static final MemorySegment %s$SEG = ARENA.allocateFrom(ValueLayout.JAVA_BYTE",
                 constant.name());
-        for (var number : numbers) {
+        for (var b : bytes) {
             writer.print(", (byte) ");
-            writer.print(number.intValue());
+            writer.print(b);
         }
         writer.println(");");
         writer.println();
@@ -213,13 +225,13 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
         writeMemorySegmentConstant(constant.name());
     }
 
-    private static Long[] parseNumbers(String value) {
+    private static int[] parseNumbers(String value) {
         var numbers = value
                 .replace('{', ' ')
                 .replace('}', ' ')
                 .replace(" ", "")
                 .split(",");
-        return Arrays.stream(numbers).map(Long::parseLong).toArray(Long[]::new);
+        return Arrays.stream(numbers).map(Long::parseLong).mapToInt(Long::intValue).toArray();
     }
 
     private void writeMemorySegmentConstant(String name) {

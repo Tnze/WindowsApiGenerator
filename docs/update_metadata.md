@@ -5,7 +5,7 @@
 - Execute:
     ```bash
     curl -L -o win32metadata.zip <download-link>
-    unzip -p win32metadata.zip Windows.Win32.winmd > windows-api/code-generator/src/main/resources/Windows.Win32.winmd
+    unzip -p win32metadata.zip Windows.Win32.winmd > windowsapi-code-generator/src/main/resources/Windows.Win32.winmd
     rm win32metadata.zip
     ```
 - Run the unit tests

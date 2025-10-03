@@ -233,7 +233,9 @@ public class MetadataBuilder implements TypeLookup {
         if (type instanceof EnumType enumType && enumType.members() != null)
             return;
 
-        var fields = getFields(type.typeDefIndex(), type instanceof Struct struct ? struct : null);
+        var fields = getFields(type.typeDefIndex(),
+                type instanceof Struct struct ? struct : null,
+                type instanceof EnumType enumType ? enumType.namespace().name() : null);
 
         switch (type) {
             case Struct struct -> {
@@ -267,12 +269,13 @@ public class MetadataBuilder implements TypeLookup {
      *
      * @param typeDefIndex the type definition index
      * @param parentType   the parent type
+     * @param currentNamespace the current namespace
      */
-    private List<Member> getFields(int typeDefIndex, Struct parentType) {
+    private List<Member> getFields(int typeDefIndex, Struct parentType, String currentNamespace) {
         var fields = new ArrayList<Member>();
         for (var field : metadataFile.getFields(typeDefIndex)) {
             var name = metadataFile.getString(field.name());
-            var fieldType = signatureDecoder.decodeFieldSignature(metadataFile.getBlob(field.signature()), parentType);
+            var fieldType = signatureDecoder.decodeFieldSignature(metadataFile.getBlob(field.signature()), parentType, currentNamespace);
             Object value = null;
             if (field.flags() == (Field.PUBLIC | Field.STATIC | Field.LITERAL | Field.HAS_DEFAULT)) {
                 var parentIndex = CodedIndex.encode(FIELD, field.index(), CodedIndexes.HAS_CONSTANT_TABLES);
@@ -330,7 +333,7 @@ public class MetadataBuilder implements TypeLookup {
                 .map(interfaceImpl -> {
                     var typeDefOrRef = interfaceImpl.interfaceTypeDefOrRef();
                     assert typeDefOrRef.table() == TYPE_REF;
-                    var interfaceType = getTypeByTypeRef(typeDefOrRef.index(), null, false);
+                    var interfaceType = getTypeByTypeRef(typeDefOrRef.index(), null, null, false);
                     return (ComInterface) interfaceType;
                 })
                 .toList();
@@ -385,7 +388,7 @@ public class MetadataBuilder implements TypeLookup {
     );
 
     private void buildConstants(int typeDefIndex, Namespace namespace) {
-        var fields = getFields(typeDefIndex, null);
+        var fields = getFields(typeDefIndex, null, null);
         for (var field : fields) {
             var name = field.name();
             var value = field.value();
@@ -563,13 +566,18 @@ public class MetadataBuilder implements TypeLookup {
     }
 
     @Override
-    public Type getTypeByTypeRef(int typeRefIndex, Struct parentType, boolean externalTypeAllowed) {
+    public Type getTypeByTypeRef(int typeRefIndex, Struct parentType, String currentNamespace, boolean externalTypeAllowed) {
         var typeRef = metadataFile.getTypeRef(typeRefIndex);
         var namespace = metadataFile.getString(typeRef.typeNamespace());
         var name = metadataFile.getString(typeRef.typeName());
         var resolutionScopeIndex = typeRef.resolutionScopeIndex();
         return switch (resolutionScopeIndex.table()) {
-            case TYPE_REF -> parentType.getNestedType(name);
+            case TYPE_REF -> {
+                if (parentType != null)
+                    yield parentType.getNestedType(name);
+                else
+                    yield metadata.getType(currentNamespace, name);
+            }
             case MODULE -> metadata.getType(namespace, name);
             case ASSEMBLY_REF -> {
                 if (name.equals(systemGuidType.name()) && namespace.equals(systemGuidType.namespace().name())) {

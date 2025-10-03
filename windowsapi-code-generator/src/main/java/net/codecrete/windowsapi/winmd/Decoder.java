@@ -28,9 +28,10 @@ class Decoder {
      *
      * @param signature  the signature
      * @param parentType the parent type
+     * @param currentNamespace the current namespace
      * @return the decoded type
      */
-    protected Type decodeType(Blob signature, Struct parentType) {
+    protected Type decodeType(Blob signature, Struct parentType, String currentNamespace) {
         // See ECMA-335, II.23.2.12 Type
         int elementType = signature.readByte();
         Type type = typeLookup.getPrimitiveType(elementType);
@@ -38,7 +39,7 @@ class Decoder {
             return type;
 
         if (elementType == ElementTypes.PTR) {
-            type = decodeType(signature, parentType);
+            type = decodeType(signature, parentType, currentNamespace);
             assert type != null;
             return typeLookup.makePointerFor(type);
         } else if (elementType == ElementTypes.VALUETYPE) {
@@ -47,7 +48,7 @@ class Decoder {
             var typeDefOrRefIndex = CodedIndex.decode(typeDefOrRefOrSpecEncoded, CodedIndexes.TYPE_DEF_OR_REF_TABLES);
             Type valueType;
             if (typeDefOrRefIndex.table() == TYPE_REF) {
-                valueType = typeLookup.getTypeByTypeRef(typeDefOrRefIndex.index(), parentType, false);
+                valueType = typeLookup.getTypeByTypeRef(typeDefOrRefIndex.index(), parentType, currentNamespace, false);
             } else {
                 valueType = typeLookup.getTypeByTypeDef(typeDefOrRefIndex.index());
             }
@@ -59,14 +60,14 @@ class Decoder {
             var typeDefOrRefIndex = CodedIndex.decode(typeDefOrRefOrSpecEncoded, CodedIndexes.TYPE_DEF_OR_REF_TABLES);
             Type classType;
             if (typeDefOrRefIndex.table() == TYPE_REF) {
-                classType = typeLookup.getTypeByTypeRef(typeDefOrRefIndex.index(), parentType, true);
+                classType = typeLookup.getTypeByTypeRef(typeDefOrRefIndex.index(), parentType, currentNamespace, true);
             } else {
                 classType = typeLookup.getTypeByTypeDef(typeDefOrRefIndex.index());
             }
             assert classType != null;
             return classType;
         } else if (elementType == ElementTypes.ARRAY) {
-            return decodeArray(signature, parentType);
+            return decodeArray(signature, parentType, currentNamespace);
         }
 
         assert false : "Unknown element type: " + elementType;
@@ -78,11 +79,12 @@ class Decoder {
      *
      * @param signature  the signature
      * @param parentType the parent type
+     * @param currentNamespace the current namespace
      * @return the decoded array type
      */
-    private Array decodeArray(Blob signature, Struct parentType) {
+    private Array decodeArray(Blob signature, Struct parentType, String currentNamespace) {
         // See ECMA-335, II.23.2.13 ArrayShape
-        var arrayType = decodeType(signature, parentType);
+        var arrayType = decodeType(signature, parentType, currentNamespace);
         var rank = signature.readCompressedUnsignedInt();
         assert rank == 1;
         var numSizes = signature.readCompressedUnsignedInt();

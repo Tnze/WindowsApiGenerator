@@ -76,19 +76,13 @@ class MetadataBuilderTest {
                 .map(Method::name)
                 .filter(name -> name.endsWith("_X64")))
                 .containsExactlyInAnyOrder(
-                        "EnableProcessOptionalXStateFeatures_X64",
-                        "GetEnabledXStateFeatures_X64",
-                        "GetThreadEnabledXStateFeatures_X64",
-                        "GetXStateFeaturesMask_X64",
-                        "LocateXStateFeature_X64",
                         "RtlAddFunctionTable_X64",
                         "RtlAddGrowableFunctionTable_X64",
                         "RtlCaptureContext2_X64",
                         "RtlDeleteFunctionTable_X64",
                         "RtlInstallFunctionTableCallback_X64",
                         "RtlLookupFunctionEntry_X64",
-                        "RtlVirtualUnwind_X64",
-                        "SetXStateFeaturesMask_X64"
+                        "RtlVirtualUnwind_X64"
                 );
         assertThat(metadata.methods()
                 .map(Method::name)

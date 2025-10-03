@@ -42,10 +42,11 @@ interface TypeLookup {
      *
      * @param typeRefIndex        TypeRef index
      * @param parentType          parent type to resolve nested types
+     * @param currentNamespace    current namespace to resolve type references without parent type
      * @param externalTypeAllowed indicates if a type from another assembly is allowed
      * @return type instance
      */
-    Type getTypeByTypeRef(int typeRefIndex, Struct parentType, boolean externalTypeAllowed);
+    Type getTypeByTypeRef(int typeRefIndex, Struct parentType, String currentNamespace, boolean externalTypeAllowed);
 
     /**
      * Gets the element type for the specified type instance.

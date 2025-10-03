@@ -38,10 +38,10 @@ class SignatureDecoder extends Decoder {
         }
 
         var paramCount = signature.readCompressedUnsignedInt();
-        var returnType = decodeType(signature, null);
+        var returnType = decodeType(signature, null, null);
         var params = new Type[paramCount];
         for (int i = 0; i < paramCount; i++) {
-            params[i] = decodeType(signature, null);
+            params[i] = decodeType(signature, null, null);
         }
         assert signature.isAtEnd();
         return new MethodSignature(returnType, params);
@@ -52,9 +52,10 @@ class SignatureDecoder extends Decoder {
      *
      * @param signature  the BLOB containing the signature
      * @param parentType the type containing the field
+     * @param currentNamespace the current namespace
      * @return the decoded signature
      */
-    Type decodeFieldSignature(Blob signature, Struct parentType) {
+    Type decodeFieldSignature(Blob signature, Struct parentType, String currentNamespace) {
         // See ECMA-335, II.23.2.4 FieldSig
         var field = signature.readByte();
         assert field == 0x06;
@@ -63,7 +64,7 @@ class SignatureDecoder extends Decoder {
         // ignore
 
         // See Type, ECMA-335, §II.23.2.12
-        var type = decodeType(signature, parentType);
+        var type = decodeType(signature, parentType, currentNamespace);
         assert signature.isAtEnd();
         return type;
     }
