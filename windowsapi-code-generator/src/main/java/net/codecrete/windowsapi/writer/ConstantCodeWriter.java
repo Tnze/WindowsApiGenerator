@@ -169,9 +169,9 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
         var numbers = parseNumbers((String) constant.value());
         assert numbers.length == 12;
 
-        var data1 = (long) numbers[0];
-        var data2 = ((long) numbers[1]) << 32;
-        var data3 = ((long) numbers[2]) << 48;
+        var data1 = numbers[0];
+        var data2 = numbers[1] << 32;
+        var data3 = numbers[2] << 48;
         var v1 = data1 | data2 | data3;
 
         var v2 = 0L;
@@ -196,11 +196,11 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
 
     private void writeUTF16ByteArrayConstant(ConstantValue constant) {
         // writes a byte array that has been encoded as a UTF-16 string
-        var bytes = constant.value().toString().chars().toArray();
+        var bytes = constant.value().toString().chars().asLongStream().toArray();
         writeByteArrayConstant(constant, bytes);
     }
 
-    private void writeByteArrayConstant(ConstantValue constant, int[] bytes) {
+    private void writeByteArrayConstant(ConstantValue constant, long[] bytes) {
         writer.printf("    private static final MemorySegment %s$SEG = ARENA.allocateFrom(ValueLayout.JAVA_BYTE",
                 constant.name());
         for (var b : bytes) {
@@ -225,13 +225,13 @@ class ConstantCodeWriter extends JavaCodeWriter<Type> {
         writeMemorySegmentConstant(constant.name());
     }
 
-    private static int[] parseNumbers(String value) {
+    private static long[] parseNumbers(String value) {
         var numbers = value
                 .replace('{', ' ')
                 .replace('}', ' ')
                 .replace(" ", "")
                 .split(",");
-        return Arrays.stream(numbers).map(Long::parseLong).mapToInt(Long::intValue).toArray();
+        return Arrays.stream(numbers).map(Long::parseLong).mapToLong(Long::longValue).toArray();
     }
 
     private void writeMemorySegmentConstant(String name) {
