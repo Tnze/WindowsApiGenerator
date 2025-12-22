@@ -35,7 +35,7 @@ class WindowsApiGradlePluginPluginFunctionalTest {
         val runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
-        runner.withArguments("--info", "build")
+        runner.withArguments("--info", "generateWindowsApi")
         runner.withProjectDir(projectDir)
         runner.build()
 

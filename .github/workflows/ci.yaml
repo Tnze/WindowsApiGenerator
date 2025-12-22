@@ -16,7 +16,9 @@ jobs:
     - name: Setup JDK 25
       uses: actions/setup-java@v5
       with:
-        java-version: '25'
+        java-version: |
+          '21'
+          '25'
         distribution: 'temurin'
         cache: maven
     - name: Setup Gradle
@@ -28,7 +30,10 @@ jobs:
         UNIT_TEST_SIGNING_KEY: ${{ vars.UNIT_TEST_SIGNING_KEY }}
       shell: bash
     - name: Build library
-      run: mvn install
+      run: |
+        echo "JAVA_HOME=$JAVA_HOME_21_x64" >> "$GITHUB_ENV"
+        echo "$JAVA_HOME_21_x64/bin" >> "$GITHUB_PATH"
+        mvn install
       working-directory: ./windowsapi-code-generator
     - name: Generate full Windows API
       run: java --class-path windowsapi-code-generator/target/test-classes:windowsapi-code-generator/target/code-generator-0.8.2.jar net.codecrete.windowsapi.special.FullBuild integration-tests/full-build/src/main/java
@@ -36,10 +41,16 @@ jobs:
       run: mvn package
       working-directory: ./integration-tests/full-build
     - name: Build Maven plug-in
-      run: mvn install
+      run: |
+        echo "JAVA_HOME=$JAVA_HOME_21_x64" >> "$GITHUB_ENV"
+        echo "$JAVA_HOME_21_x64/bin" >> "$GITHUB_PATH"
+        mvn install
       working-directory: ./windowsapi-maven-plugin
     - name: Build Gradle plug-in
-      run: ./gradlew check publish
+      run: |
+        echo "JAVA_HOME=$JAVA_HOME_21_x64" >> "$GITHUB_ENV"
+        echo "$JAVA_HOME_21_x64/bin" >> "$GITHUB_PATH"
+        ./gradlew check publish
       working-directory: ./windowsapi-gradle-plugin
     - name: Build messagebox example
       run: mvn compile
