@@ -29,17 +29,13 @@ jobs:
       env:
         UNIT_TEST_SIGNING_KEY: ${{ vars.UNIT_TEST_SIGNING_KEY }}
       shell: bash
-    - name: Build library
+    - name: Switch to Java 21
       run: |
         echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
         echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
-        mvn install
+    - name: Build library
+      run: mvn install
       working-directory: ./windowsapi-code-generator
-    - name: Generate full Windows API
-      run: java --class-path windowsapi-code-generator/target/test-classes:windowsapi-code-generator/target/code-generator-0.8.2.jar net.codecrete.windowsapi.special.FullBuild integration-tests/full-build/src/main/java
-    - name: Build full Windows API
-      run: mvn package
-      working-directory: ./integration-tests/full-build
     - name: Build Maven plug-in
       run: |
         echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
@@ -52,6 +48,15 @@ jobs:
         echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
         ./gradlew check publish
       working-directory: ./windowsapi-gradle-plugin
+    - name: Switch to Java 25
+      run: |
+        echo "JAVA_HOME=$JAVA_HOME_25_X64" >> "$GITHUB_ENV"
+        echo "$JAVA_HOME_25_X64/bin" >> "$GITHUB_PATH"
+    - name: Generate full Windows API
+      run: java --class-path windowsapi-code-generator/target/test-classes:windowsapi-code-generator/target/code-generator-0.8.2.jar net.codecrete.windowsapi.special.FullBuild integration-tests/full-build/src/main/java
+    - name: Build full Windows API
+      run: mvn package
+      working-directory: ./integration-tests/full-build
     - name: Build messagebox example
       run: mvn compile
       working-directory: ./examples/messagebox
