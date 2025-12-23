@@ -12,10 +12,10 @@
   <url>https://github.com/manuelbl/WindowsApiGenerator</url>
 
   <properties>
-    <maven.compiler.release>24</maven.compiler.release>
-    <maven.compiler.source>24</maven.compiler.source>
-    <maven.compiler.target>24</maven.compiler.target>
-    <kotlin.version>2.1.20</kotlin.version>
+    <maven.compiler.release>25</maven.compiler.release>
+    <maven.compiler.source>25</maven.compiler.source>
+    <maven.compiler.target>25</maven.compiler.target>
+    <kotlin.version>2.3.0</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -64,7 +64,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
+        <version>3.14.1</version>
         <executions>
           <execution>
             <id>default-compile</id>

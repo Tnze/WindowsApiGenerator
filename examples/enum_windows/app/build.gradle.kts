@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.jvm) version "2.3.0"
 
     id("net.codecrete.windows-api") version "0.8.2"
 
@@ -50,12 +50,16 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 application {
     mainClass = "net.codecrete.windowsapi.examples.enumwindows.AppKt"
+}
+
+tasks.compileTestKotlin {
+    dependsOn("generateTestWindowsApi")
 }
 
 tasks.named<Test>("test") {
