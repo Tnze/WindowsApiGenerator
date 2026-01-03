@@ -50,6 +50,7 @@ public class WindowsApiRun {
     private Set<String> callbackFunctions = new HashSet<>();
     private Set<String> comInterfaces = new HashSet<>();
     private Set<String> constants = new HashSet<>();
+    private Set<String> options = new HashSet<>();
 
     /**
      * Creates a new instance.
@@ -225,6 +226,19 @@ public class WindowsApiRun {
         this.constants = constants;
     }
 
+    public Set<String> getOptions() {
+        return options;
+    }
+
+    /**
+     * Sets the options of the code generator
+     *
+     * @param options the code generation options
+     */
+    public void setOptions(Set<String> options) {
+        this.options = options;
+    }
+
     /**
      * Gets the event listener.
      * <p>
@@ -285,7 +299,7 @@ public class WindowsApiRun {
 
         scope.buildTransitiveScope();
 
-        var writer = new CodeWriter(metadata, outputDirectory, eventListener);
+        var writer = new CodeWriter(metadata, outputDirectory, eventListener, options);
         writer.setDryRun(isDryRun);
         writer.setBasePackage(basePackage);
         writer.write(scope);

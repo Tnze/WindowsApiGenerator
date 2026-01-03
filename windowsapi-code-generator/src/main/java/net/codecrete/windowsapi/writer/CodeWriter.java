@@ -47,14 +47,14 @@ public class CodeWriter extends JavaCodeWriter<Type> {
      * @param outputDirectory the output directory
      * @param eventListener   the event listener to notify about events
      */
-    public CodeWriter(Metadata metadata, Path outputDirectory, EventListener eventListener) {
+    public CodeWriter(Metadata metadata, Path outputDirectory, EventListener eventListener, Set<String> options) {
         super(new GenerationContext(metadata, eventListener));
         generationContext().setWriterFactory(this::createFileWriter);
 
         this.outputDirectory = outputDirectory;
         structCodeWriter = new StructCodeWriter(generationContext());
         enumCodeWriter = new EnumCodeWriter(generationContext());
-        functionCodeWriter = new FunctionCodeWriter(generationContext());
+        functionCodeWriter = new FunctionCodeWriter(generationContext(), options);
         callbackFunctionCodeWriter = new CallbackFunctionCodeWriter(generationContext());
         constantCodeWriter = new ConstantCodeWriter(generationContext());
         comInterfaceWriter = new ComInterfaceWriter(generationContext());

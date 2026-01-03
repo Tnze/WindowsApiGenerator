@@ -33,7 +33,7 @@ class CodeWriterTest {
     @Test
     void writeAll_succeeds() {
         var eventListener = new FileNameListener();
-        var codeWriter = new CodeWriter(metadata, Path.of("."), eventListener);
+        var codeWriter = new CodeWriter(metadata, Path.of("."), eventListener, Set.of());
         codeWriter.setDryRun(true);
         assertDoesNotThrow(codeWriter::writeAll);
         var duplicateFiles = eventListener.filePaths.stream()
@@ -54,7 +54,7 @@ class CodeWriterTest {
             var scope = new Scope(metadata, new SimpleEventListener());
             scope.addStructs(Set.of("USB_NODE_CONNECTION_INFORMATION_EX"));
             scope.buildTransitiveScope();
-            var codeWriter = new CodeWriter(metadata, temporaryDirectory, eventListener);
+            var codeWriter = new CodeWriter(metadata, temporaryDirectory, eventListener, Set.of());
             codeWriter.setBasePackage("basepackage");
             codeWriter.setDryRun(false);
             codeWriter.write(scope);
@@ -141,7 +141,7 @@ class CodeWriterTest {
                 "DBT_DEVICEARRIVAL",
                 "DBT_DEVICEREMOVECOMPLETE"
         ));
-        var codeWriter = new CodeWriter(metadata, Path.of("."), eventListener);
+        var codeWriter = new CodeWriter(metadata, Path.of("."), eventListener, Set.of());
         codeWriter.setDryRun(true);
         assertDoesNotThrow(() -> codeWriter.write(scope));
         assertThat(eventListener.fileCount).isEqualTo(16);

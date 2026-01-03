@@ -85,6 +85,16 @@ abstract class WindowsApiTask : DefaultTask() {
     @get:Optional
     abstract val basePackage: Property<String>
 
+    /**
+     * Options of the code generator
+     *
+     * Supported options:
+     * - "noSystemLoadLibrary": Do not generate System.loadLibrary() call in static block
+     */
+    @get:Input
+    @get:Optional
+    abstract val options: ListProperty<String>
+
     @TaskAction
     fun generateCode() {
         val run = WindowsApiRun()
@@ -98,6 +108,7 @@ abstract class WindowsApiTask : DefaultTask() {
         run.constants.addAll(constants.get())
         run.outputDirectory = outputDirectory.get().asFile.toPath()
         run.basePackage = basePackage.get()
+        run.options.addAll(options.get())
 
         try {
             run.generateCode()

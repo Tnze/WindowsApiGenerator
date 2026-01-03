@@ -12,6 +12,7 @@ import net.codecrete.windowsapi.winmd.MetadataBuilder;
 import net.codecrete.windowsapi.writer.CodeWriter;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 public class FullBuild {
 
@@ -29,7 +30,7 @@ public class FullBuild {
         var ouputDirectoryFile = outputDirectory.toFile();
         if (!ouputDirectoryFile.exists())
             ouputDirectoryFile.mkdirs();
-        var codeWriter = new CodeWriter(metadata, outputDirectory, new SimpleEventListener());
+        var codeWriter = new CodeWriter(metadata, outputDirectory, new SimpleEventListener(), Set.of()); // TODO: accept options from command-lin args
         codeWriter.writeAll();
     }
 }

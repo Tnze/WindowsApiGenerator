@@ -14,6 +14,7 @@ import net.codecrete.windowsapi.metadata.TypeAlias;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Creates the Java code for the functions in a given namespace.
@@ -24,14 +25,16 @@ class FunctionCodeWriter extends FunctionCodeWriterBase<Type> {
             "the call state (replacement for {@code GetLastError()}).";
 
     private final CommentWriter commentWriter = new CommentWriter();
+    private final Set<String> options;
 
     /**
      * Creates a new instance.
      *
      * @param generationContext the code generation context
      */
-    FunctionCodeWriter(GenerationContext generationContext) {
+    FunctionCodeWriter(GenerationContext generationContext, Set<String> options) {
         super(generationContext);
+        this.options = options;
     }
 
     /**
@@ -60,15 +63,17 @@ class FunctionCodeWriter extends FunctionCodeWriterBase<Type> {
                 
                 """);
 
-        writer.println("    static {");
-        functions.stream().map(Method::dll).filter(Objects::nonNull).distinct().sorted().forEach(dll ->
-                writer.printf("""
+        if (!options.contains("noSystemLoadLibrary")) {
+            writer.println("    static {");
+            functions.stream().map(Method::dll).filter(Objects::nonNull).distinct().sorted().forEach(dll ->
+                    writer.printf("""
                                 System.loadLibrary("%s");
                         """, dllName(dll)));
-        writer.print("""
+            writer.print("""
                     }
                 
                 """);
+        }
 
         boolean usesLastError = anyFunctionUsesLastError(functions);
 
