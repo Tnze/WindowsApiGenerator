@@ -82,6 +82,9 @@ public class WindowsApiGenerator extends AbstractMojo {
     @Parameter
     List<String> constants;
 
+    @Parameter
+    List<String> options;
+
     /**
      * Location of the output directory for the generated code.
      */
@@ -162,6 +165,8 @@ public class WindowsApiGenerator extends AbstractMojo {
             run.setComInterfaces(new HashSet<>(comInterfaces));
         if (constants != null)
             run.setConstants(new HashSet<>(constants));
+        if (options != null)
+            run.setOptions(new HashSet<>(options));
 
         run.setOutputDirectory(sourceFolder);
         run.setBasePackage(basePackage != null ? basePackage : "");

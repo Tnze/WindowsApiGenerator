@@ -226,6 +226,11 @@ public class WindowsApiRun {
         this.constants = constants;
     }
 
+    /**
+     * Gets the options of the code generator
+     *
+     * @return the code generation options
+     */
     public Set<String> getOptions() {
         return options;
     }
