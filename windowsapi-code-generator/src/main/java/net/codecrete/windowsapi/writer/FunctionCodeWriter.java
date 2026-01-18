@@ -60,15 +60,18 @@ class FunctionCodeWriter extends FunctionCodeWriterBase<Type> {
                 
                 """);
 
-        writer.println("    static {");
+        writer.print("""
+                static {
+                    var libraryPath = System.getenv("WINDIR") + "\\\\SYSTEM32\\\\";
+            """);
         functions.stream().map(Method::dll).filter(Objects::nonNull).distinct().sorted().forEach(dll ->
                 writer.printf("""
-                                System.loadLibrary("%s");
-                        """, dllName(dll)));
+                            System.load(libraryPath + "%s.dll");
+                    """, dllName(dll)));
         writer.print("""
-                    }
-                
-                """);
+                }
+            
+            """);
 
         boolean usesLastError = anyFunctionUsesLastError(functions);
 
